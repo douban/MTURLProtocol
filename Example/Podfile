@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'MTURLProtocol_Example' do
+  pod 'MTURLProtocol', :path => '../'
+
+  target 'MTURLProtocol_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
