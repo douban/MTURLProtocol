@@ -7,9 +7,11 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MTRequestHandler <NSObject>
+NS_ASSUME_NONNULL_BEGIN
+@interface MTRequestHandler : NSObject
 
 - (BOOL)canInitWithRequest:(NSURLRequest *)request;
-- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request;
+- (nullable NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request;
 
 @end
+NS_ASSUME_NONNULL_END

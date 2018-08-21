@@ -6,12 +6,13 @@
 //
 
 @import Foundation;
-@protocol MTRequestHandler;
+@class MTRequestHandler, MTResponseHandler;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface MTURLProtocol : NSURLProtocol
 
-@property (class, nonatomic, strong, nullable) NSArray<id<MTRequestHandler>> *requestHandlers;
+@property (class, nonatomic, strong, nullable) NSArray<MTRequestHandler *> *requestHandlers;
+@property (class, nonatomic, strong, nullable) MTResponseHandler *responseHandler;
 
 @end
 NS_ASSUME_NONNULL_END

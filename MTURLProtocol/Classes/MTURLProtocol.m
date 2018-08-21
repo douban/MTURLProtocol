@@ -9,8 +9,10 @@
 #import "MTURLSessionDataTaskDemux.h"
 #import "NSURLSessionConfiguration+URLProtocolRegistration.h"
 #import "MTRequestHandler.h"
+#import "MTResponseHandler.h"
 
-static NSArray<id<MTRequestHandler>> *_requestHandlers;
+static NSArray<MTRequestHandler *> *_requestHandlers;
+static MTResponseHandler *_responsHandler;
 
 @interface MTURLProtocol () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
@@ -80,12 +82,22 @@ static NSArray<id<MTRequestHandler>> *_requestHandlers;
 
 #pragma mark - Properties
 
-+ (NSArray<id<MTRequestHandler>> *)requestHandlers
++ (MTResponseHandler *)responseHandler
+{
+  return _responsHandler;
+}
+
++ (void)setResponseHandler:(MTResponseHandler *)responseHandler
+{
+  _responsHandler = responseHandler;
+}
+
++ (NSArray<MTRequestHandler *> *)requestHandlers
 {
   return _requestHandlers;
 }
 
-+ (void)setRequestHandlers:(NSArray<id<MTRequestHandler>> *)requestHandlers
++ (void)setRequestHandlers:(NSArray<MTRequestHandler *> *)requestHandlers
 {
   _requestHandlers = [requestHandlers copy];
 }
@@ -110,7 +122,13 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler
 {
-
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
+    [self.class.responseHandler URLSession:session
+                                      task:task
+                willPerformHTTPRedirection:response
+                                newRequest:request
+                         completionHandler:completionHandler];
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -118,14 +136,23 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *_Nullable credential))completionHandler
 {
-  
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+    [self.class.responseHandler URLSession:session
+                                      task:task
+                       didReceiveChallenge:challenge
+                         completionHandler:completionHandler];
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error
 {
-
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+    [self.class.responseHandler URLSession:session
+                                      task:task
+                      didCompleteWithError:error];
+  }
 }
 
 #pragma mark - NSURLSessionDataDelegate
@@ -135,14 +162,23 @@ didCompleteWithError:(nullable NSError *)error
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
-
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)])  {
+    [self.class.responseHandler URLSession:session
+                                  dataTask:dataTask
+                        didReceiveResponse:response
+                         completionHandler:completionHandler];
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
-
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
+    [self.class.responseHandler URLSession:session
+                                  dataTask:dataTask
+                            didReceiveData:data];
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -150,7 +186,12 @@ didReceiveResponse:(NSURLResponse *)response
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
  completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))completionHandler
 {
-
+  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:willCacheResponse:completionHandler:)]) {
+    [self.class.responseHandler URLSession:session
+                                  dataTask:dataTask
+                         willCacheResponse:proposedResponse
+                         completionHandler:completionHandler];
+  }
 }
 
 @end
