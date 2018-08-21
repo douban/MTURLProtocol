@@ -1,0 +1,16 @@
+PODS:
+  - MTURLProtocol (0.1.0)
+
+DEPENDENCIES:
+  - MTURLProtocol (from `../`)
+
+EXTERNAL SOURCES:
+  MTURLProtocol:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  MTURLProtocol: 6378f40ae4e9fcc5f68892ae39acb02fe3a8510b
+
+PODFILE CHECKSUM: b46c3a9f0e6da15fb6f9e84c02613c30eba1201c
+
+COCOAPODS: 1.5.2
