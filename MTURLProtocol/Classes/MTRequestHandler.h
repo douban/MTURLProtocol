@@ -7,6 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MTRequestHandler : NSObject
+@protocol MTRequestHandler <NSObject>
+
+- (BOOL)canInitWithRequest:(NSURLRequest *)request;
+- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request;
 
 @end
