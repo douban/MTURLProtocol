@@ -1,16 +1,42 @@
 PODS:
+  - DOUFoundation/Reachability (0.2.15):
+    - Reachability-DoubanInternal (~> 5.0.0)
+  - FRDCryptology (0.1.1)
+  - FRDNetwork (0.2.8):
+    - DOUFoundation/Reachability (~> 0.2.13)
+    - FRDCryptology (~> 0.1.0)
   - MTURLProtocol (0.1.0)
+  - Reachability-DoubanInternal (5.0.0)
 
 DEPENDENCIES:
+  - FRDNetwork (from `https://github.intra.douban.com/iOS/FRDNetwork.git`, commit `471f71fddc3bf1e4b83e50b1e69518c22516e591`)
   - MTURLProtocol (from `../`)
 
+SPEC REPOS:
+  http://github.intra.douban.com/iOS/CocoaPodsSpecs.git:
+    - DOUFoundation
+    - FRDCryptology
+    - Reachability-DoubanInternal
+
 EXTERNAL SOURCES:
+  FRDNetwork:
+    :commit: 471f71fddc3bf1e4b83e50b1e69518c22516e591
+    :git: https://github.intra.douban.com/iOS/FRDNetwork.git
   MTURLProtocol:
     :path: "../"
 
-SPEC CHECKSUMS:
-  MTURLProtocol: 6378f40ae4e9fcc5f68892ae39acb02fe3a8510b
+CHECKOUT OPTIONS:
+  FRDNetwork:
+    :commit: 471f71fddc3bf1e4b83e50b1e69518c22516e591
+    :git: https://github.intra.douban.com/iOS/FRDNetwork.git
 
-PODFILE CHECKSUM: b46c3a9f0e6da15fb6f9e84c02613c30eba1201c
+SPEC CHECKSUMS:
+  DOUFoundation: 614220122417888b01094f6685c49354f9cb8e3b
+  FRDCryptology: b26c95144171438ad5e5ef18ca2512ec48a79b62
+  FRDNetwork: 364b4a88e2c4f0f8943b2a0071d3eced8d8c3f86
+  MTURLProtocol: 6378f40ae4e9fcc5f68892ae39acb02fe3a8510b
+  Reachability-DoubanInternal: 1f6f2603a866d13dabe51ce27309ab9103901b0d
+
+PODFILE CHECKSUM: 31567ce2307bbb2c4c9d47a6a0e3a1b6e43cce03
 
 COCOAPODS: 1.5.2

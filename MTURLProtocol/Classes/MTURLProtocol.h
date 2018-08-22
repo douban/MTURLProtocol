@@ -14,5 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, strong, nullable) NSArray<MTRequestHandler *> *requestHandlers;
 @property (class, nonatomic, strong, nullable) MTResponseHandler *responseHandler;
 
++ (void)registerWithSessionConfiguration:(NSURLSessionConfiguration *)config;
++ (void)unregisterWithSessionConfiguration:(NSURLSessionConfiguration *)config;
+
 @end
 NS_ASSUME_NONNULL_END

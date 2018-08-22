@@ -1,11 +1,11 @@
+source 'http://github.intra.douban.com/iOS/CocoaPodsSpecs.git'
 use_frameworks!
 
 target 'MTURLProtocol_Example' do
   pod 'MTURLProtocol', :path => '../'
+  pod 'FRDNetwork',              :git => 'https://github.intra.douban.com/iOS/FRDNetwork.git', :commit => '471f71fddc3bf1e4b83e50b1e69518c22516e591'
 
   target 'MTURLProtocol_Tests' do
     inherit! :search_paths
-
-    
   end
 end

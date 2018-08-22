@@ -6,6 +6,8 @@
 //  Copyright (c) 2018 duyu1010@gmail.com. All rights reserved.
 //
 
+@import MTURLProtocol;
+
 #import "MTViewController.h"
 
 static NSString *DNS = @"DNS";
@@ -72,6 +74,17 @@ static NSString *DNS = @"DNS";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   [tableView deselectRowAtIndexPath:indexPath animated:NO];
+
+  if ([_rows[indexPath.row] isEqualToString:DNS]) {
+    [self _mt_testDNS];
+  }
+}
+
+#pragma mark - Test Logic
+
+- (void)_mt_testDNS
+{
+  
 }
 
 @end

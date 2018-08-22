@@ -31,7 +31,6 @@ static MTResponseHandler *_responsHandler;
   dispatch_once(&onceToken, ^{
     NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
     [sessionConfiguration setTimeoutIntervalForRequest:15];
-    [sessionConfiguration mt_registerProtocolClass:[self class]];
     demux = [[MTURLSessionDataTaskDemux alloc] initWithSessionConfiguration:sessionConfiguration];
   });
 
@@ -78,6 +77,18 @@ static MTResponseHandler *_responsHandler;
     [_dataTask cancel];
     self.dataTask = nil;
   }
+}
+
+#pragma mark - Public Methods
+
++ (void)registerWithSessionConfiguration:(NSURLSessionConfiguration *)config
+{
+  [config mt_registerProtocolClass:self];
+}
+
++ (void)unregisterWithSessionConfiguration:(NSURLSessionConfiguration *)config
+{
+  [config mt_unregisterProtocolClass:self];
 }
 
 #pragma mark - Properties
