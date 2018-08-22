@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MTRequestHandler : NSObject
 
 - (BOOL)canInitWithRequest:(NSURLRequest *)request;
-- (nullable NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request;
+- (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest;
+- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest;
 
 @end
 NS_ASSUME_NONNULL_END

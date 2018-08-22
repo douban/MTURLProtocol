@@ -39,6 +39,7 @@ static MTResponseHandler *_responsHandler;
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+  // If any handler of self.requestHandlers can init, it should return YES.
   for (id handler in self.requestHandlers) {
     if ([handler canInitWithRequest:request]) {
       return YES;
@@ -117,12 +118,13 @@ static MTResponseHandler *_responsHandler;
 
 - (NSURLRequest *)_mt_decoratedRequestOfRequest:(NSURLRequest *)request
 {
+  NSURLRequest *newRequest = request;
   for (id handlers in self.class.requestHandlers) {
-    if ([handlers canInitWithRequest:request]) {
-      request = [handlers decoratedRequestOfRequest:request];
+    if ([handlers canHandleRequest:newRequest originalRequest:request]) {
+      newRequest = [handlers decoratedRequestOfRequest:newRequest originalRequest:request];
     }
   }
-  return request;
+  return newRequest;
 }
 
 #pragma mark - NSURLSessionTaskDelegate

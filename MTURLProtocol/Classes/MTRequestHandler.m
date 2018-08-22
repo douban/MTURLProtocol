@@ -15,7 +15,13 @@
   return NO;
 }
 
-- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request
+- (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
+{
+  NSAssert(NO, @"Subclass should implement this method");
+  return NO;
+}
+
+- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
 {
   NSAssert(NO, @"Subclass should implement this method");
   return request;
