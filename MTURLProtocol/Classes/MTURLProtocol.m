@@ -14,12 +14,17 @@
 
 static NSArray<MTRequestHandler *> *_requestHandlers;
 static MTResponseHandler *_responsHandler;
+static NSDictionary *_requestResponseHandlerMap;
 
 @interface MTURLProtocol () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (nonatomic, strong) NSURLSessionTask *dataTask;
 @property (nonatomic, copy) NSArray *modes;
 @property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
+@property (nonatomic, strong, nullable) MTResponseHandler *responseHandler;
+
+@property (class, nonatomic, copy, nullable) NSDictionary<NSString *, MTResponseHandler *> *requestResponseHandlerMap;
+@property (nonatomic, copy) NSMutableArray<NSString *> *applyingRequestHandlerNames;
 
 @end
 
@@ -59,6 +64,7 @@ static MTResponseHandler *_responsHandler;
 {
   // Check if there is any local request handler
   self.localRequestHandler = nil;
+  self.applyingRequestHandlerNames = [NSMutableArray array];
 
   // Config runloop mode
   NSMutableArray *modes = [NSMutableArray array];
@@ -107,16 +113,41 @@ static MTResponseHandler *_responsHandler;
   [config mt_unregisterProtocolClass:self];
 }
 
-#pragma mark - Properties
-
-+ (MTResponseHandler *)responseHandler
++ (void)setResponseHandler:(MTResponseHandler *)responseHandler
+  forRequestHandlerClasses:(NSArray<Class> *)requestHandlerClasses
 {
-  return _responsHandler;
+  if (!responseHandler || !requestHandlerClasses.count) {
+    return;
+  }
+
+  NSMutableDictionary *map = [self requestResponseHandlerMap].mutableCopy;
+  if (!map) {
+    map = [NSMutableDictionary dictionary];
+  }
+
+  NSMutableArray *classNames = [NSMutableArray array];
+  for (Class handlerClass in requestHandlerClasses) {
+    [classNames addObject:NSStringFromClass(handlerClass)];
+  }
+  NSString *key = [self _mt_keyForRequestHandlerNames:classNames];
+  if (!key) {
+    return ;
+  }
+
+  map[key] = responseHandler;
+  [self setRequestResponseHandlerMap:map];
 }
 
-+ (void)setResponseHandler:(MTResponseHandler *)responseHandler
+#pragma mark - Properties
+
++ (NSDictionary *)requestResponseHandlerMap
 {
-  _responsHandler = responseHandler;
+  return _requestResponseHandlerMap;
+}
+
++ (void)setRequestResponseHandlerMap:(NSDictionary *)requestResponseHandlerMap
+{
+  _requestResponseHandlerMap = [requestResponseHandlerMap copy];
 }
 
 + (NSArray<MTRequestHandler *> *)requestHandlers
@@ -129,22 +160,47 @@ static MTResponseHandler *_responsHandler;
   _requestHandlers = [requestHandlers copy];
 }
 
+- (MTResponseHandler *)responseHandler
+{
+  return [self _mt_responseHandlerForRequestHandlerNames:_applyingRequestHandlerNames];
+}
+
 #pragma mark - Helpers
 
 - (NSURLRequest *)_mt_decoratedRequestOfRequest:(NSURLRequest *)request
 {
   NSURLRequest *newRequest = request;
-  for (id handler in self.class.requestHandlers) {
+  for (MTRequestHandler *handler in self.class.requestHandlers) {
     if ([handler canHandleRequest:newRequest originalRequest:request]) {
       newRequest = [handler decoratedRequestOfRequest:newRequest originalRequest:request];
+      [_applyingRequestHandlerNames addObject:NSStringFromClass(handler.class)];
 
       if ([handler isKindOfClass:MTLocalRequestHandler.class]) {
-        self.localRequestHandler = handler;
+        self.localRequestHandler = (MTLocalRequestHandler *)handler;
         return newRequest;
       }
     }
   }
   return newRequest;
+}
+
+- (nullable MTResponseHandler *)_mt_responseHandlerForRequestHandlerNames:(NSArray<NSString *> *)requestHandlerNames
+{
+  NSString *key = [self.class _mt_keyForRequestHandlerNames:requestHandlerNames];
+  if (!key) {
+    return nil;
+  }
+
+  return [[self.class requestResponseHandlerMap] objectForKey:key];
+}
+
++ (nullable NSString *)_mt_keyForRequestHandlerNames:(NSArray<NSString *> *)requestHandlerNames
+{
+  if (!requestHandlerNames.count) {
+    return nil;
+  }
+
+  return [requestHandlerNames componentsJoinedByString:@"-"];
 }
 
 #pragma mark - NSURLSessionTaskDelegate
@@ -155,12 +211,12 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
-    [self.class.responseHandler URLSession:session
-                                      task:task
-                willPerformHTTPRedirection:response
-                                newRequest:request
-                         completionHandler:completionHandler];
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
+    [self.responseHandler URLSession:session
+                                task:task
+          willPerformHTTPRedirection:response
+                          newRequest:request
+                   completionHandler:completionHandler];
   }
 }
 
@@ -169,11 +225,11 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *_Nullable credential))completionHandler
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
-    [self.class.responseHandler URLSession:session
-                                      task:task
-                       didReceiveChallenge:challenge
-                         completionHandler:completionHandler];
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+    [self.responseHandler URLSession:session
+                                task:task
+                 didReceiveChallenge:challenge
+                   completionHandler:completionHandler];
   }
 }
 
@@ -181,10 +237,10 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
               task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
-    [self.class.responseHandler URLSession:session
-                                      task:task
-                      didCompleteWithError:error];
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+    [self.responseHandler URLSession:session
+                                task:task
+                didCompleteWithError:error];
   }
 }
 
@@ -195,11 +251,11 @@ didCompleteWithError:(nullable NSError *)error
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)])  {
-    [self.class.responseHandler URLSession:session
-                                  dataTask:dataTask
-                        didReceiveResponse:response
-                         completionHandler:completionHandler];
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)])  {
+    [self.responseHandler URLSession:session
+                            dataTask:dataTask
+                  didReceiveResponse:response
+                   completionHandler:completionHandler];
   }
 }
 
@@ -207,10 +263,10 @@ didReceiveResponse:(NSURLResponse *)response
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
-    [self.class.responseHandler URLSession:session
-                                  dataTask:dataTask
-                            didReceiveData:data];
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
+    [self.responseHandler URLSession:session
+                            dataTask:dataTask
+                      didReceiveData:data];
   }
 }
 
@@ -219,12 +275,12 @@ didReceiveResponse:(NSURLResponse *)response
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
  completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))completionHandler
 {
-  if ([self.class.responseHandler respondsToSelector:@selector(URLSession:dataTask:willCacheResponse:completionHandler:)]) {
-    [self.class.responseHandler URLSession:session
-                                  dataTask:dataTask
-                         willCacheResponse:proposedResponse
-                         completionHandler:completionHandler];
-  }
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:dataTask:willCacheResponse:completionHandler:)]) {
+    [self.responseHandler URLSession:session
+                            dataTask:dataTask
+                   willCacheResponse:proposedResponse
+                   completionHandler:completionHandler];
+}
 }
 
 @end
