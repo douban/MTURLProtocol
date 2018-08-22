@@ -21,6 +21,8 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		716A103D212D1909003653AA /* MTDNSRequestHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 716A103C212D1909003653AA /* MTDNSRequestHandler.m */; };
+		716A1046212D44FE003653AA /* MTRXRRemoteRequestHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 716A1045212D44FE003653AA /* MTRXRRemoteRequestHandler.m */; };
+		716A1049212D4591003653AA /* MTRXROAuthRequestHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 716A1048212D4591003653AA /* MTRXROAuthRequestHandler.m */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		B75E2C9A1856641BB77168B3 /* Pods_MTURLProtocol_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48249E278924BEFE44810228 /* Pods_MTURLProtocol_Tests.framework */; };
@@ -63,6 +65,10 @@
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		716A103B212D1909003653AA /* MTDNSRequestHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDNSRequestHandler.h; sourceTree = "<group>"; };
 		716A103C212D1909003653AA /* MTDNSRequestHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDNSRequestHandler.m; sourceTree = "<group>"; };
+		716A1044212D44FE003653AA /* MTRXRRemoteRequestHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTRXRRemoteRequestHandler.h; sourceTree = "<group>"; };
+		716A1045212D44FE003653AA /* MTRXRRemoteRequestHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTRXRRemoteRequestHandler.m; sourceTree = "<group>"; };
+		716A1047212D4591003653AA /* MTRXROAuthRequestHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTRXROAuthRequestHandler.h; sourceTree = "<group>"; };
+		716A1048212D4591003653AA /* MTRXROAuthRequestHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTRXROAuthRequestHandler.m; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		9A9173AD701A5CAC660D2CBD /* Pods-MTURLProtocol_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MTURLProtocol_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-MTURLProtocol_Example/Pods-MTURLProtocol_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -145,6 +151,10 @@
 				6003F594195388D20070C39A /* Supporting Files */,
 				716A103B212D1909003653AA /* MTDNSRequestHandler.h */,
 				716A103C212D1909003653AA /* MTDNSRequestHandler.m */,
+				716A1044212D44FE003653AA /* MTRXRRemoteRequestHandler.h */,
+				716A1045212D44FE003653AA /* MTRXRRemoteRequestHandler.m */,
+				716A1047212D4591003653AA /* MTRXROAuthRequestHandler.h */,
+				716A1048212D4591003653AA /* MTRXROAuthRequestHandler.m */,
 			);
 			name = "Example for MTURLProtocol";
 			path = MTURLProtocol;
@@ -435,8 +445,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* MTAppDelegate.m in Sources */,
+				716A1046212D44FE003653AA /* MTRXRRemoteRequestHandler.m in Sources */,
 				716A103D212D1909003653AA /* MTDNSRequestHandler.m in Sources */,
 				6003F5A7195388D20070C39A /* MTViewController.m in Sources */,
+				716A1049212D4591003653AA /* MTRXROAuthRequestHandler.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

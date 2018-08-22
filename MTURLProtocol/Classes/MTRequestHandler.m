@@ -9,6 +9,8 @@
 
 @implementation MTRequestHandler
 
+#pragma mark - Methods should be implemented by subclass
+
 - (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
   NSAssert(NO, @"Subclass should implement this method");
