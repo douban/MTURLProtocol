@@ -13,18 +13,15 @@
 #import "MTLocalRequestHandler.h"
 
 static NSArray<MTRequestHandler *> *_requestHandlers;
-static MTResponseHandler *_responsHandler;
-static NSDictionary *_requestResponseHandlerMap;
+static NSArray<MTResponseHandler *> *_responseHandlers;
 
 @interface MTURLProtocol () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (nonatomic, strong) NSURLSessionTask *dataTask;
 @property (nonatomic, copy) NSArray *modes;
 @property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
-@property (nonatomic, strong, nullable) MTResponseHandler *responseHandler;
-
-@property (class, nonatomic, copy, nullable) NSDictionary<NSString *, MTResponseHandler *> *requestResponseHandlerMap;
-@property (nonatomic, copy) NSMutableArray<NSString *> *applyingRequestHandlerNames;
+@property (nonatomic, readonly, nullable) MTResponseHandler *responseHandler;
+@property (nonatomic, strong) NSURLRequest *originalRequest;
 
 @end
 
@@ -64,7 +61,7 @@ static NSDictionary *_requestResponseHandlerMap;
 {
   // Check if there is any local request handler
   self.localRequestHandler = nil;
-  self.applyingRequestHandlerNames = [NSMutableArray array];
+  self.originalRequest = self.request;
 
   // Config runloop mode
   NSMutableArray *modes = [NSMutableArray array];
@@ -113,42 +110,7 @@ static NSDictionary *_requestResponseHandlerMap;
   [config mt_unregisterProtocolClass:self];
 }
 
-+ (void)setResponseHandler:(MTResponseHandler *)responseHandler
-  forRequestHandlerClasses:(NSArray<Class> *)requestHandlerClasses
-{
-  if (!responseHandler || !requestHandlerClasses.count) {
-    return;
-  }
-
-  NSMutableDictionary *map = [self requestResponseHandlerMap].mutableCopy;
-  if (!map) {
-    map = [NSMutableDictionary dictionary];
-  }
-
-  NSMutableArray *classNames = [NSMutableArray array];
-  for (Class handlerClass in requestHandlerClasses) {
-    [classNames addObject:NSStringFromClass(handlerClass)];
-  }
-  NSString *key = [self _mt_keyForRequestHandlerNames:classNames];
-  if (!key) {
-    return ;
-  }
-
-  map[key] = responseHandler;
-  [self setRequestResponseHandlerMap:map];
-}
-
 #pragma mark - Properties
-
-+ (NSDictionary *)requestResponseHandlerMap
-{
-  return _requestResponseHandlerMap;
-}
-
-+ (void)setRequestResponseHandlerMap:(NSDictionary *)requestResponseHandlerMap
-{
-  _requestResponseHandlerMap = [requestResponseHandlerMap copy];
-}
 
 + (NSArray<MTRequestHandler *> *)requestHandlers
 {
@@ -160,9 +122,24 @@ static NSDictionary *_requestResponseHandlerMap;
   _requestHandlers = [requestHandlers copy];
 }
 
++ (NSArray<MTResponseHandler *> *)responseHandlers
+{
+  return _responseHandlers;
+}
+
++ (void)setResponseHandlers:(NSArray<MTResponseHandler *> *)responseHandlers
+{
+  _responseHandlers = [responseHandlers copy];
+}
+
 - (MTResponseHandler *)responseHandler
 {
-  return [self _mt_responseHandlerForRequestHandlerNames:_applyingRequestHandlerNames];
+  for (MTResponseHandler *handler in [self.class responseHandlers]) {
+    if ([handler shouldHandleRequest:_originalRequest]) {
+      return handler;
+    }
+  }
+  return nil;
 }
 
 #pragma mark - Helpers
@@ -173,7 +150,6 @@ static NSDictionary *_requestResponseHandlerMap;
   for (MTRequestHandler *handler in self.class.requestHandlers) {
     if ([handler canHandleRequest:newRequest originalRequest:request]) {
       newRequest = [handler decoratedRequestOfRequest:newRequest originalRequest:request];
-      [_applyingRequestHandlerNames addObject:NSStringFromClass(handler.class)];
 
       if ([handler isKindOfClass:MTLocalRequestHandler.class]) {
         self.localRequestHandler = (MTLocalRequestHandler *)handler;
@@ -182,25 +158,6 @@ static NSDictionary *_requestResponseHandlerMap;
     }
   }
   return newRequest;
-}
-
-- (nullable MTResponseHandler *)_mt_responseHandlerForRequestHandlerNames:(NSArray<NSString *> *)requestHandlerNames
-{
-  NSString *key = [self.class _mt_keyForRequestHandlerNames:requestHandlerNames];
-  if (!key) {
-    return nil;
-  }
-
-  return [[self.class requestResponseHandlerMap] objectForKey:key];
-}
-
-+ (nullable NSString *)_mt_keyForRequestHandlerNames:(NSArray<NSString *> *)requestHandlerNames
-{
-  if (!requestHandlerNames.count) {
-    return nil;
-  }
-
-  return [requestHandlerNames componentsJoinedByString:@"-"];
 }
 
 #pragma mark - NSURLSessionTaskDelegate

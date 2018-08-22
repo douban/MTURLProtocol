@@ -11,13 +11,11 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface MTURLProtocol : NSURLProtocol
 
-@property (class, nonatomic, strong, nullable) NSArray<MTRequestHandler *> *requestHandlers;
+@property (class, nonatomic, copy, nullable) NSArray<MTRequestHandler *> *requestHandlers;
+@property (class, nonatomic, copy, nullable) NSArray<MTResponseHandler *> *responseHandlers;
 
 + (void)registerWithSessionConfiguration:(NSURLSessionConfiguration *)config;
 + (void)unregisterWithSessionConfiguration:(NSURLSessionConfiguration *)config;
-
-+ (void)setResponseHandler:(MTResponseHandler *)responseHandler
-  forRequestHandlerClasses:(NSArray<Class> *)requestHandlerClasses;
 
 @end
 NS_ASSUME_NONNULL_END
