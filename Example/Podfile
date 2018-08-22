@@ -1,11 +1,25 @@
 source 'http://github.intra.douban.com/iOS/CocoaPodsSpecs.git'
+source 'http://github.intra.douban.com/mirror/Specs.git'
+
+platform :ios, '8.0'
 use_frameworks!
 
 target 'MTURLProtocol_Example' do
-  pod 'MTURLProtocol', :path => '../'
-  pod 'FRDNetwork',              :git => 'https://github.intra.douban.com/iOS/FRDNetwork.git', :commit => '471f71fddc3bf1e4b83e50b1e69518c22516e591'
+  pod 'MTURLProtocol',                                    :path => '../'
+  pod 'FRDFangorn/ConcretBusiness/Rexxar',                :git => 'https://github.intra.douban.com/huangduyu/FRDFangorn.git', :commit => '6901f930f1b5559aae0cb1412420be16ca17f155'
+  pod 'Polymorph',                                        :git => 'https://github.com/douban/Polymorph.git', :commit => 'ec503cfe3fcf9e18f8c675175273d5cde608d1e2'
+  pod 'Rexxar',                                           :git => 'https://github.com/douban/rexxar-ios.git', :commit => '4c30548545cb4c4912f6bf7fd2d2438ea60b775d'
+  pod 'DoubanObjCClient',                                 :git => 'https://github.intra.douban.com/iOS/DoubanObjCClient.git', :commit => 'd686a6d92ab8b350247c533521065a310f777ed7'
 
   target 'MTURLProtocol_Tests' do
     inherit! :search_paths
+  end
+end
+
+post_install do | installer |
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['SWIFT_VERSION'] = '4.0'
+    end
   end
 end
