@@ -8,22 +8,70 @@
 
 #import "MTViewController.h"
 
-@interface MTViewController ()
+static NSString *DNS = @"DNS";
+
+@interface MTViewController () <UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, copy) NSArray *rows;
 
 @end
 
 @implementation MTViewController
 
-- (void)viewDidLoad
+- (instancetype)init
 {
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+  if (self = [super init]) {
+    self.title = @"MTURLProtocol Demo";
+
+    _rows = @[DNS];
+  }
+  return self;
 }
 
-- (void)didReceiveMemoryWarning
+- (void)viewDidLoad
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+  [super viewDidLoad];
+
+  self.view.backgroundColor = UIColor.whiteColor;
+  [self.view addSubview:self.tableView];
+}
+
+- (void)viewDidLayoutSubviews
+{
+  [super viewDidLayoutSubviews];
+  self.tableView.frame = self.view.bounds;
+}
+
+- (UITableView *)tableView
+{
+  if (!_tableView) {
+    _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    [_tableView registerClass:UITableViewCell.class forCellReuseIdentifier:NSStringFromClass(UITableViewCell.class)];
+  }
+  return _tableView;
+}
+
+#pragma mark - TableView Delegate and Datasource
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+  return _rows.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass(UITableViewCell.class)
+                                                          forIndexPath:indexPath];
+  cell.textLabel.text = _rows[indexPath.row];
+  return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 @end
