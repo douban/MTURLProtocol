@@ -10,5 +10,6 @@
 @interface NSURLRequest (Utils)
 
 - (NSURLRequest *)requestByAddingHeaders:(nullable NSDictionary *)headers parameters:(nullable NSDictionary *)params;
+- (BOOL)isHTTPSeries;
 
 @end

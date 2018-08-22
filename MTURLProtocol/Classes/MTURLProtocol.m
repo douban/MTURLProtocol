@@ -10,6 +10,7 @@
 #import "NSURLSessionConfiguration+URLProtocolRegistration.h"
 #import "MTRequestHandler.h"
 #import "MTResponseHandler.h"
+#import "MTLocalRequestHandler.h"
 
 static NSArray<MTRequestHandler *> *_requestHandlers;
 static MTResponseHandler *_responsHandler;
@@ -18,6 +19,7 @@ static MTResponseHandler *_responsHandler;
 
 @property (nonatomic, strong) NSURLSessionTask *dataTask;
 @property (nonatomic, copy) NSArray *modes;
+@property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
 
 @end
 
@@ -55,6 +57,9 @@ static MTResponseHandler *_responsHandler;
 
 - (void)startLoading
 {
+  // Check if there is any local request handler
+  self.localRequestHandler = nil;
+
   // Config runloop mode
   NSMutableArray *modes = [NSMutableArray array];
   [modes addObject:NSDefaultRunLoopMode];
@@ -64,12 +69,22 @@ static MTResponseHandler *_responsHandler;
   }
   self.modes = modes;
 
-  // Decorate request and generate dataTask
-  NSURLSessionTask *dataTask = [[[self class] sharedDemux] dataTaskWithRequest:[self _mt_decoratedRequestOfRequest:self.request]
-                                                                      delegate:self
-                                                                         modes:self.modes];
-  [dataTask resume];
-  self.dataTask = dataTask;
+  // Decorate request and check if is local or remote request.
+  NSURLRequest *newRequest = [self _mt_decoratedRequestOfRequest:self.request];
+  if (_localRequestHandler) {
+    NSData *data = [_localRequestHandler responseData];
+    NSURLResponse *response = [_localRequestHandler responseForRequest:newRequest];
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+    [self.client URLProtocol:self didLoadData:data];
+    [self.client URLProtocolDidFinishLoading:self];
+  }
+  else {
+    NSURLSessionTask *dataTask = [[[self class] sharedDemux] dataTaskWithRequest:newRequest
+                                                                        delegate:self
+                                                                           modes:self.modes];
+    [dataTask resume];
+    self.dataTask = dataTask;
+  }
 }
 
 - (void)stopLoading
@@ -119,9 +134,14 @@ static MTResponseHandler *_responsHandler;
 - (NSURLRequest *)_mt_decoratedRequestOfRequest:(NSURLRequest *)request
 {
   NSURLRequest *newRequest = request;
-  for (id handlers in self.class.requestHandlers) {
-    if ([handlers canHandleRequest:newRequest originalRequest:request]) {
-      newRequest = [handlers decoratedRequestOfRequest:newRequest originalRequest:request];
+  for (id handler in self.class.requestHandlers) {
+    if ([handler canHandleRequest:newRequest originalRequest:request]) {
+      newRequest = [handler decoratedRequestOfRequest:newRequest originalRequest:request];
+
+      if ([handler isKindOfClass:MTLocalRequestHandler.class]) {
+        self.localRequestHandler = handler;
+        return newRequest;
+      }
     }
   }
   return newRequest;

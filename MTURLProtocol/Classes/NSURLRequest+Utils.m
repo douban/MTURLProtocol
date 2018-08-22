@@ -36,6 +36,11 @@
                                            error:nil];
 }
 
+- (BOOL)isHTTPSeries
+{
+  return [@[@"http", @"https"] containsObject:self.URL.scheme.lowercaseString];
+}
+
 #pragma mark - Helpers
 
 - (void)_mt_addQuery:(NSString *)query toParameters:(NSMutableDictionary *)parameters
