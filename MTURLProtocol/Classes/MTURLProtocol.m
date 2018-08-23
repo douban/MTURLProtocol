@@ -96,6 +96,8 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
     [_dataTask cancel];
     self.dataTask = nil;
   }
+
+  [self.responseHandler stopLoading];
 }
 
 #pragma mark - Public Methods

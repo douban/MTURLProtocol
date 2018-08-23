@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) MTURLProtocol *protocol;
 
 - (BOOL)shouldHandleRequest:(NSURLRequest *)request;
+- (void)stopLoading;
 
 @end
 NS_ASSUME_NONNULL_END

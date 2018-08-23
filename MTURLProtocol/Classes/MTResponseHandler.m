@@ -15,4 +15,9 @@
   return NO;
 }
 
+- (void)stopLoading
+{
+  return;
+}
+
 @end
