@@ -7,22 +7,13 @@
 //
 
 #import "MTRXRRemoteRequestHandler.h"
+#import "NSURLRequest+MT.h"
 
 @implementation MTRXRRemoteRequestHandler
 
 - (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-  // frodo.douban.com/<jsonp|api>/ 为 API AJAX 请求。
-  if ([request.URL.scheme isEqualToString:@"https"]) {
-    if ([request.URL.host isEqualToString:@"frodo.douban.com"] && ([request.URL.path hasPrefix:@"/jsonp/"] || [request.URL.path hasPrefix:@"/api/"])) {
-      return YES;
-    }
-    else if ([request.URL.host isEqualToString:@"read.douban.com"] && [request.URL.path hasPrefix:@"/j/"]) {
-      return YES;
-    }
-  }
-
-  return NO;
+  return [request mt_isRXRRemoteRequest];
 }
 
 - (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest

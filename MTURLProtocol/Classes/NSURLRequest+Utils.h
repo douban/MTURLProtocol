@@ -9,7 +9,7 @@
 
 @interface NSURLRequest (Utils)
 
-- (NSURLRequest *)requestByAddingHeaders:(nullable NSDictionary *)headers parameters:(nullable NSDictionary *)params;
-- (BOOL)isHTTPSeries;
+- (NSURLRequest *)mt_requestByAddingHeaders:(nullable NSDictionary *)headers parameters:(nullable NSDictionary *)params;
+- (BOOL)mt_isHTTPSeries;
 
 @end

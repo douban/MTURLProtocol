@@ -57,7 +57,7 @@
     parameters[key] = value;
   }
 
-  return [request requestByAddingHeaders:headers parameters:parameters];
+  return [request mt_requestByAddingHeaders:headers parameters:parameters];
 }
 
 - (NSString *)_mt_currentNetworkStatusStr

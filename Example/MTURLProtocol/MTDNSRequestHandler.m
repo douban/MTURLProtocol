@@ -7,46 +7,19 @@
 //
 
 @import FRDNetwork;
-
 #import "MTDNSRequestHandler.h"
+#import "NSURLRequest+MT.h"
 
 @implementation MTDNSRequestHandler
 
+- (BOOL)canInitWithRequest:(NSURLRequest *)request
+{
+  return [request mt_isDNSRequest];
+}
+
 - (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
 {
-  NSURL *URL = [request URL];
-  if (URL == nil) {
-    return NO;
-  }
-
-  if (![FRDDNSConfiguration URLProtocolEnabled]) {
-    return NO;
-  }
-
-  NSString *URLScheme = [URL scheme];
-  NSString *URLHost = [URL host];
-  if ([URLScheme length] == 0 ||
-      [URLHost length] == 0 ||
-      [@[@"http", @"https"] containsObject:URLScheme.lowercaseString] == NO) {
-    return NO;
-  }
-
-  id<FRDDNSResolver> resolver = [FRDDNSConfiguration DNSResolverForHost:URLHost];
-  if (resolver != nil && [resolver isKindOfClass:[FRDDNSPodHTTPDNSResolver class]]) {
-    FRDDNSPodHTTPDNSResolver *httpdnsResolver = (FRDDNSPodHTTPDNSResolver *)resolver;
-    FRDDNSCacheEntry *cacheEntry = [httpdnsResolver cacheResultForHost:URLHost];
-
-    if ([[cacheEntry addresses] count] == 0 || ![cacheEntry isValid]) {
-      [httpdnsResolver syncFromServerForHost:URLHost completionHandler:nil];
-      return NO;
-    }
-
-    if ([[cacheEntry addresses] count] > 0) {
-      return YES;
-    }
-  }
-
-  return NO;
+  return [self canInitWithRequest:request];
 }
 
 - (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest

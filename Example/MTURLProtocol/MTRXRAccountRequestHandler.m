@@ -9,19 +9,13 @@
 @import MTURLProtocol;
 @import FRDFangorn;
 #import "MTRXRAccountRequestHandler.h"
+#import "NSURLRequest+MT.h"
 
 @implementation MTRXRAccountRequestHandler
 
 - (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-  // https://frodo.douban.com/api/v2/~me
-  if ([request isHTTPSeries] &&
-      [request.URL.host isEqualToString:@"frodo.douban.com"] &&
-      [request.URL.path hasPrefix:@"/api/v2/~me"]) {
-
-    return YES;
-  }
-  return NO;
+  return [request mt_isRXRAccountLocalRequest];
 }
 
 - (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest

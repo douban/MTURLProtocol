@@ -10,7 +10,7 @@
 
 @implementation NSURLRequest (Utils)
 
-- (NSURLRequest *)requestByAddingHeaders:(NSDictionary *)headers parameters:(NSDictionary *)params
+- (NSURLRequest *)mt_requestByAddingHeaders:(NSDictionary *)headers parameters:(NSDictionary *)params
 {
   if (!headers.count && !params.count) {
     return self;
@@ -36,7 +36,7 @@
                                            error:nil];
 }
 
-- (BOOL)isHTTPSeries
+- (BOOL)mt_isHTTPSeries
 {
   return [@[@"http", @"https"] containsObject:self.URL.scheme.lowercaseString];
 }
