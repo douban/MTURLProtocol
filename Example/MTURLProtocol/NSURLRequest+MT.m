@@ -51,6 +51,10 @@
 
 - (BOOL)mt_isRXRRemoteRequest
 {
+  if (![self _mt_isFromBrowser]) {
+    return NO;
+  }
+
   // frodo.douban.com/<jsonp|api>/ 为 API AJAX 请求。
   if ([self.URL.scheme isEqualToString:@"https"]) {
     if ([self.URL.host isEqualToString:@"frodo.douban.com"] && ([self.URL.path hasPrefix:@"/jsonp/"] || [self.URL.path hasPrefix:@"/api/"])) {
@@ -66,6 +70,10 @@
 
 - (BOOL)mt_isRXRAccountLocalRequest
 {
+  if (![self _mt_isFromBrowser]) {
+    return NO;
+  }
+
   // https://frodo.douban.com/api/v2/~me
   if ([self mt_isHTTPSeries] &&
       [self.URL.host isEqualToString:@"frodo.douban.com"] &&
@@ -73,6 +81,11 @@
     return YES;
   }
   return NO;
+}
+
+- (BOOL)_mt_isFromBrowser
+{
+  return [self.allHTTPHeaderFields[@"User-Agent"] hasPrefix:@"Mozilla"];
 }
 
 @end
