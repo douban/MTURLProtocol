@@ -136,6 +136,9 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
 {
   for (MTResponseHandler *handler in [self.class responseHandlers]) {
     if ([handler shouldHandleRequest:_originalRequest]) {
+      handler.client = self.client;
+      handler.protocol = self;
+      handler.dataTask = _dataTask;
       return handler;
     }
   }
