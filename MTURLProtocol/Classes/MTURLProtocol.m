@@ -82,9 +82,9 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
     [self.client URLProtocolDidFinishLoading:self];
   }
   else {
-    NSURLSessionTask *dataTask = [[[self class] sharedDemux] dataTaskWithRequest:newRequest
-                                                                        delegate:self
-                                                                           modes:self.modes];
+    NSURLSessionTask *dataTask = [self.class.sharedDemux dataTaskWithRequest:newRequest
+                                                                    delegate:self
+                                                                       modes:self.modes];
     [dataTask resume];
     self.dataTask = dataTask;
   }
@@ -102,14 +102,9 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
 
 #pragma mark - Public Methods
 
-+ (void)registerWithSessionConfiguration:(NSURLSessionConfiguration *)config
++ (void)makeRegistered
 {
-  [config mt_registerProtocolClass:self];
-}
-
-+ (void)unregisterWithSessionConfiguration:(NSURLSessionConfiguration *)config
-{
-  [config mt_unregisterProtocolClass:self];
+  [self.class.sharedDemux.sessionConfiguration mt_registerProtocolClass:self.class];
 }
 
 #pragma mark - Properties
