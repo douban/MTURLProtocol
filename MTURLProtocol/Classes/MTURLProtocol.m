@@ -23,8 +23,8 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 @property (nonatomic, copy) NSArray *modes;
 @property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
 @property (nonatomic, readonly, nullable) MTResponseHandler *responseHandler;
-@property (nonatomic, strong) NSURLRequest *originalRequest;
-@property (nonatomic, strong) NSURLRequest *finalRequest;
+@property (nonatomic, copy) NSURLRequest *originalRequest;
+@property (nonatomic, copy) NSURLRequest *finalRequest;
 
 @end
 
