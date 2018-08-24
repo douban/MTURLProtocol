@@ -24,6 +24,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 @property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
 @property (nonatomic, readonly, nullable) MTResponseHandler *responseHandler;
 @property (nonatomic, strong) NSURLRequest *originalRequest;
+@property (nonatomic, strong) NSURLRequest *finalRequest;
 
 @end
 
@@ -63,9 +64,10 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 
 - (void)startLoading
 {
-  // Check if there is any local request handler
+  // Init
   self.localRequestHandler = nil;
   self.originalRequest = self.request;
+  self.finalRequest = self.request;
 
   // Config runloop mode
   NSMutableArray *modes = [NSMutableArray array];
@@ -78,6 +80,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 
   // Decorate request and check if is local or remote request.
   NSURLRequest *newRequest = [self _mt_decoratedRequestOfRequest:self.request];
+  self.finalRequest = newRequest;
   if (_localRequestHandler) {
     NSLog(@"MTURLProtocol startLoading local request = %@", newRequest.URL.absoluteString);
 
@@ -149,7 +152,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 - (MTResponseHandler *)responseHandler
 {
   for (MTResponseHandler *handler in [self.class responseHandlers]) {
-    if ([handler shouldHandleRequest:_originalRequest]) {
+    if ([handler shouldHandleRequest:_finalRequest originalRequest:_originalRequest]) {
       handler.client = self.client;
       handler.protocol = self;
       handler.dataTask = _dataTask;

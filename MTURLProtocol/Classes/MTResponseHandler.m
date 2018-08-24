@@ -9,7 +9,7 @@
 
 @implementation MTResponseHandler
 
-- (BOOL)shouldHandleRequest:(NSURLRequest *)request
+- (BOOL)shouldHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
 {
   NSAssert(NO, @"Subclass should implement this method");
   return NO;

@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) NSURLSessionTask *dataTask;
 @property (nonatomic, weak) MTURLProtocol *protocol;
 
-- (BOOL)shouldHandleRequest:(NSURLRequest *)request;
+- (BOOL)shouldHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest;
 - (void)stopLoading;
 
 @end
