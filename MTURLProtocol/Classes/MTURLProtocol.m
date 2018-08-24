@@ -11,9 +11,11 @@
 #import "MTRequestHandler.h"
 #import "MTResponseHandler.h"
 #import "MTLocalRequestHandler.h"
+#import "MTTaskHandler.h"
 
 static NSArray<MTRequestHandler *> *_requestHandlers;
 static NSArray<MTResponseHandler *> *_responseHandlers;
+static NSArray<MTTaskHandler *> *_taskHandlers;
 
 @interface MTURLProtocol () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
@@ -91,6 +93,12 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
     NSURLSessionTask *dataTask = [self.class.sharedDemux dataTaskWithRequest:newRequest
                                                                     delegate:self
                                                                        modes:self.modes];
+
+    MTTaskHandler *handler = [self _mt_taskHandlerForTask:dataTask];
+    if (handler) {
+      dataTask = [handler decoratedTaskForTask:dataTask];
+    }
+
     [dataTask resume];
     self.dataTask = dataTask;
   }
@@ -136,6 +144,16 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
   _responseHandlers = [responseHandlers copy];
 }
 
++ (NSArray<MTTaskHandler *> *)taskHandlers
+{
+  return _taskHandlers;
+}
+
++ (void)setTaskHandlers:(NSArray<MTTaskHandler *> *)taskHandlers
+{
+  _taskHandlers = [taskHandlers copy];
+}
+
 - (MTResponseHandler *)responseHandler
 {
   for (MTResponseHandler *handler in [self.class responseHandlers]) {
@@ -165,6 +183,17 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
     }
   }
   return newRequest;
+}
+
+- (nullable MTTaskHandler *)_mt_taskHandlerForTask:(NSURLSessionTask *)task
+{
+  for (MTTaskHandler *handler in [self.class taskHandlers]) {
+    if ([handler canHandleTask:task]) {
+      return handler;
+    }
+  }
+
+  return nil;
 }
 
 #pragma mark - NSURLSessionTaskDelegate

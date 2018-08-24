@@ -363,7 +363,7 @@ SPEC CHECKSUMS:
   libextobjc: a650fc1bf489a3d3a9bc2e621efa3e1006fc5471
   libwebp: d7e0c95fe97245c97e08101eba10702ebb0f6101
   lottie-ios: d699fdee68d7b63e721d949388b015fef1aaa4ac
-  MTURLProtocol: 6378f40ae4e9fcc5f68892ae39acb02fe3a8510b
+  MTURLProtocol: d0861735db3dc10ff7c2c0dee195fff9fa0b584c
   Polymorph: 57da1d8ec0253281721b805869c638241fe9166d
   PureLayout: 4d550abe49a94f24c2808b9b95db9131685fe4cd
   Reachability-DoubanInternal: 1f6f2603a866d13dabe51ce27309ab9103901b0d
