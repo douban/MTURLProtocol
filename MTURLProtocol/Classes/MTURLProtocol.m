@@ -43,6 +43,8 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+  NSLog(@"MTURLProtocol canInitWithRequest = %@", request.URL.absoluteString);
+
   // If any handler of self.requestHandlers can init, it should return YES.
   for (id handler in self.requestHandlers) {
     if ([handler canInitWithRequest:request]) {
@@ -75,6 +77,8 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
   // Decorate request and check if is local or remote request.
   NSURLRequest *newRequest = [self _mt_decoratedRequestOfRequest:self.request];
   if (_localRequestHandler) {
+    NSLog(@"MTURLProtocol startLoading local request = %@", newRequest.URL.absoluteString);
+
     NSData *data = [_localRequestHandler responseData];
     NSURLResponse *response = [_localRequestHandler responseForRequest:newRequest];
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
@@ -82,6 +86,8 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
     [self.client URLProtocolDidFinishLoading:self];
   }
   else {
+    NSLog(@"MTURLProtocol startLoading remote request = %@", newRequest.URL.absoluteString);
+
     NSURLSessionTask *dataTask = [self.class.sharedDemux dataTaskWithRequest:newRequest
                                                                     delegate:self
                                                                        modes:self.modes];
@@ -104,6 +110,7 @@ static NSArray<MTResponseHandler *> *_responseHandlers;
 
 + (void)makeRegistered
 {
+  [NSURLProtocol registerClass:self];
   [self.class.sharedDemux.sessionConfiguration mt_registerProtocolClass:self.class];
 }
 
@@ -175,6 +182,9 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                           newRequest:request
                    completionHandler:completionHandler];
   }
+  else {
+    completionHandler(request);
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -188,16 +198,48 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
                  didReceiveChallenge:challenge
                    completionHandler:completionHandler];
   }
+  else {
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error
 {
-  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
     [self.responseHandler URLSession:session
                                 task:task
                 didCompleteWithError:error];
+  }
+}
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+ needNewBodyStream:(void (^)(NSInputStream *bodyStream))completionHandler
+{
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:needNewBodyStream:)]) {
+    [self.responseHandler URLSession:session
+                                task:task
+                   needNewBodyStream:completionHandler];
+  }
+  else {
+    completionHandler(nil);
+  }
+}
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+   didSendBodyData:(int64_t)bytesSent
+    totalBytesSent:(int64_t)totalBytesSent
+totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
+{
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:)]) {
+    [self.responseHandler URLSession:session
+                                task:task
+                     didSendBodyData:bytesSent
+                      totalBytesSent:totalBytesSent
+            totalBytesExpectedToSend:totalBytesExpectedToSend];
   }
 }
 
@@ -213,6 +255,9 @@ didReceiveResponse:(NSURLResponse *)response
                             dataTask:dataTask
                   didReceiveResponse:response
                    completionHandler:completionHandler];
+  }
+  else {
+    completionHandler(NSURLSessionResponseAllow);
   }
 }
 
@@ -237,7 +282,21 @@ didReceiveResponse:(NSURLResponse *)response
                             dataTask:dataTask
                    willCacheResponse:proposedResponse
                    completionHandler:completionHandler];
+  }
+  else {
+    completionHandler(proposedResponse);
+  }
 }
+
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
+{
+  if ([self.responseHandler respondsToSelector:@selector(URLSession:dataTask:didBecomeDownloadTask:)]) {
+    [self.responseHandler URLSession:session
+                            dataTask:dataTask
+               didBecomeDownloadTask:downloadTask];
+  }
 }
 
 @end

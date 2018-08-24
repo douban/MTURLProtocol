@@ -74,7 +74,7 @@
   return taskInfo;
 }
 
-#pragma mark - URLSession serires'd elegates
+#pragma mark - URLSession serires' delegates
 
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
