@@ -114,19 +114,6 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   [self.responseHandler stopLoading];
 }
 
-#pragma mark - Public Methods
-
-+ (void)makeRegistered
-{
-  [NSURLProtocol registerClass:self];
-  [self.class.sharedDemux.sessionConfiguration mt_registerProtocolClass:self.class];
-}
-
-+ (void)registerWithConfiguration:(NSURLSessionConfiguration *)configuration
-{
-  [configuration mt_registerProtocolClass:self.class];
-}
-
 #pragma mark - Properties
 
 + (NSArray<MTRequestHandler *> *)requestHandlers

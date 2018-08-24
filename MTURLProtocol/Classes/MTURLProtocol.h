@@ -15,8 +15,5 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, copy, nullable) NSArray<MTResponseHandler *> *responseHandlers;
 @property (class, nonatomic, copy, nullable) NSArray<MTTaskHandler *> *taskHandlers;
 
-+ (void)makeRegistered;
-+ (void)registerWithConfiguration:(NSURLSessionConfiguration *)configuration;
-
 @end
 NS_ASSUME_NONNULL_END
