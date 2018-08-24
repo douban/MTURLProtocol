@@ -9,6 +9,8 @@
 @class MTRequestHandler, MTResponseHandler, MTTaskHandler;
 
 NS_ASSUME_NONNULL_BEGIN
+
+__attribute__((objc_subclassing_restricted))
 @interface MTURLProtocol : NSURLProtocol
 
 @property (class, nonatomic, copy, nullable) NSArray<MTRequestHandler *> *requestHandlers;
