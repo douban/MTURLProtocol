@@ -17,5 +17,17 @@ __attribute__((objc_subclassing_restricted))
 @property (class, nonatomic, copy, nullable) NSArray<MTResponseHandler *> *responseHandlers;
 @property (class, nonatomic, copy, nullable) NSArray<MTTaskHandler *> *taskHandlers;
 
++ (void)addRequestHandler:(nullable MTRequestHandler *)handler;
++ (void)removeRequestHandler:(nullable MTRequestHandler *)handler;
++ (void)removeRequestHandlerByClass:(Class)class;
+
++ (void)addResponseHandler:(nullable MTResponseHandler *)handler;
++ (void)removeResponseHandler:(nullable MTResponseHandler *)handler;
++ (void)removeResponseHandlerByClass:(Class)class;
+
++ (void)addTaskHandler:(nullable MTTaskHandler *)handler;
++ (void)removeTaskHandler:(nullable MTTaskHandler *)handler;
++ (void)removeTaskHandlerByClass:(Class)class;
+
 @end
 NS_ASSUME_NONNULL_END

@@ -117,6 +117,53 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   [self.responseHandler stopLoading];
 }
 
+#pragma mark - Public Methods
+
++ (void)addRequestHandler:(MTRequestHandler *)handler
+{
+   [self setRequestHandlers:[self _mt_addHandler:handler toArray:[self requestHandlers]]];
+}
+
++ (void)removeRequestHandler:(MTRequestHandler *)handler
+{
+  [self setRequestHandlers:[self _mt_removeHandler:handler ofArray:[self requestHandlers]]];
+}
+
++ (void)removeRequestHandlerByClass:(Class)class
+{
+  [self setRequestHandlers:[self _mt_removeHandlerByClass:class ofArray:[self requestHandlers]]];
+}
+
++ (void)addResponseHandler:(MTResponseHandler *)handler
+{
+  [self setResponseHandlers:[self _mt_addHandler:handler toArray:[self responseHandlers]]];
+}
+
++ (void)removeResponseHandler:(MTResponseHandler *)handler
+{
+  [self setResponseHandlers:[self _mt_removeHandler:handler ofArray:[self responseHandlers]]];
+}
+
++ (void)removeResponseHandlerByClass:(Class)class
+{
+  [self setResponseHandlers:[self _mt_removeHandlerByClass:class ofArray:[self responseHandlers]]];
+}
+
++ (void)addTaskHandler:(MTTaskHandler *)handler
+{
+  [self setTaskHandlers:[self _mt_addHandler:handler toArray:[self taskHandlers]]];
+}
+
++ (void)removeTaskHandler:(MTTaskHandler *)handler
+{
+  [self setTaskHandlers:[self _mt_removeHandler:handler ofArray:[self taskHandlers]]];
+}
+
++ (void)removeTaskHandlerByClass:(Class)class
+{
+  [self setTaskHandlers:[self _mt_removeHandlerByClass:class ofArray:[self taskHandlers]]];
+}
+
 #pragma mark - Properties
 
 + (NSArray<MTRequestHandler *> *)requestHandlers
@@ -189,6 +236,68 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   }
 
   return nil;
+}
+
++ (NSArray *)_mt_addHandler:(NSObject *)handler toArray:(NSArray *)array
+{
+  if (!handler) {
+    return array;
+  }
+
+  BOOL added = NO;
+  for (NSObject *hd in array) {
+    if ([hd isKindOfClass:handler.class]) { // Only add one instance of the specific class
+      added = YES;
+      break;
+    }
+  }
+
+  if (added) {
+    return array;
+  }
+
+  NSMutableArray *mutArray = array.mutableCopy;
+  if (!mutArray) {
+    mutArray = [NSMutableArray array];
+  }
+  [mutArray addObject:handler];
+  return mutArray;
+}
+
++ (NSArray *)_mt_removeHandler:(NSObject *)handler ofArray:(NSArray *)array
+{
+  if (!handler) {
+    return array;
+  }
+
+  if ([array containsObject:handler]) {
+    NSMutableArray *mutArray = array.mutableCopy;
+    [mutArray removeObject:handler];
+    return mutArray;
+  }
+  else {
+    return array;
+  }
+}
+
++ (NSArray *)_mt_removeHandlerByClass:(Class)class ofArray:(NSArray *)array
+{
+  NSObject *removingHandler;
+  for (NSObject *handler in array) {
+    if ([handler isKindOfClass:class]) {
+      removingHandler = handler;
+      break;
+    }
+  }
+
+  if (removingHandler) {
+    NSMutableArray *mutArray = array.mutableCopy;
+    [mutArray removeObject:removingHandler];
+    return mutArray;
+  }
+  else {
+    return array;
+  }
 }
 
 #pragma mark - NSURLSessionTaskDelegate
