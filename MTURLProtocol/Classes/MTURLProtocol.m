@@ -121,7 +121,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 
 + (void)addRequestHandler:(MTRequestHandler *)handler
 {
-   [self setRequestHandlers:[self _mt_addHandler:handler toArray:[self requestHandlers]]];
+  [self setRequestHandlers:[self _mt_addHandler:handler toArray:[self requestHandlers]]];
 }
 
 + (void)removeRequestHandler:(MTRequestHandler *)handler
@@ -300,6 +300,48 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   }
 }
 
++ (NSURLCacheStoragePolicy)_mt_storagePolicyForRequest:(NSURLRequest *)request response:(NSURLResponse *)response
+{
+  if (!request || !response) {
+    NSAssert(NO, @"Should not be here");
+    return NSURLCacheStorageNotAllowed;
+  }
+
+  if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+    return NSURLCacheStorageNotAllowed;
+  }
+
+  NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+  switch ([HTTPResponse statusCode]) {
+    case 200:
+    case 203:
+    case 206:
+    case 301:
+    case 304:
+    case 404:
+    case 410:
+      break;
+    default:
+      return NSURLCacheStorageNotAllowed;
+      break;
+  }
+
+  NSString *responseHeader = [[HTTPResponse allHeaderFields][@"Cache-Control"] lowercaseString];
+  if (responseHeader != nil && [responseHeader rangeOfString:@"no-store"].location != NSNotFound) {
+    return NSURLCacheStorageNotAllowed;
+  }
+
+  NSString *requestHeader = [[request allHTTPHeaderFields][@"Cache-Control"] lowercaseString];
+  if (requestHeader != nil
+      && [requestHeader rangeOfString:@"no-store"].location != NSNotFound
+      && [requestHeader rangeOfString:@"no-cache"].location != NSNotFound) {
+    return NSURLCacheStorageNotAllowed;
+  }
+
+  return NSURLCacheStorageAllowed;
+}
+
+
 #pragma mark - NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session
@@ -315,7 +357,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                           newRequest:request
                    completionHandler:completionHandler];
   }
-  else {
+  else if (task == _dataTask) {
     completionHandler(request);
   }
 }
@@ -331,7 +373,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
                  didReceiveChallenge:challenge
                    completionHandler:completionHandler];
   }
-  else {
+  else if (task == _dataTask) {
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
   }
 }
@@ -345,6 +387,14 @@ didCompleteWithError:(nullable NSError *)error
                                 task:task
                 didCompleteWithError:error];
   }
+  else if (task == _dataTask) {
+    if (error == nil) {
+      [self.client URLProtocolDidFinishLoading:self];
+    }
+    else {
+      [self.client URLProtocol:self didFailWithError:error];
+    }
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -356,7 +406,7 @@ didCompleteWithError:(nullable NSError *)error
                                 task:task
                    needNewBodyStream:completionHandler];
   }
-  else {
+  else if (task == _dataTask) {
     completionHandler(nil);
   }
 }
@@ -389,7 +439,10 @@ didReceiveResponse:(NSURLResponse *)response
                   didReceiveResponse:response
                    completionHandler:completionHandler];
   }
-  else {
+  else if (dataTask == _dataTask) {
+    [self.client URLProtocol:self
+          didReceiveResponse:response
+          cacheStoragePolicy:[self.class _mt_storagePolicyForRequest:dataTask.originalRequest response:response]];
     completionHandler(NSURLSessionResponseAllow);
   }
 }
@@ -402,6 +455,9 @@ didReceiveResponse:(NSURLResponse *)response
     [self.responseHandler URLSession:session
                             dataTask:dataTask
                       didReceiveData:data];
+  }
+  else if (dataTask == _dataTask) {
+    [self.client URLProtocol:self didLoadData:data];
   }
 }
 
@@ -416,7 +472,7 @@ didReceiveResponse:(NSURLResponse *)response
                    willCacheResponse:proposedResponse
                    completionHandler:completionHandler];
   }
-  else {
+  else if (dataTask == _dataTask) {
     completionHandler(proposedResponse);
   }
 }
