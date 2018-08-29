@@ -10,6 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ Every single MTURLProtocol instance uses class properties of `requestHandlers`, `responseHandlers` and `taskHandlers`
+ to check if it needs genertate corresponding array of instances of Class<MTXXXHandler> when `-initWithRequest:cachedResponse:client:`
+ or `-initWithTask:cachedResponse:client:` method is called.
+ */
 __attribute__((objc_subclassing_restricted))
 @interface MTURLProtocol : NSURLProtocol
 
@@ -37,7 +42,7 @@ __attribute__((objc_subclassing_restricted))
 /**
  add requestHandler to MTURLProtocol.requestHandlers
 
- - Note: Only support adding one instance of the specific MTRequestHandler subclass.
+ - Note: Only support adding one instance of the specific MTRequestHandler protocol.
  */
 + (void)addRequestHandler:(Class<MTRequestHandler>)handler;
 + (void)removeRequestHandler:(Class<MTResponseHandler>)handler;
@@ -45,7 +50,7 @@ __attribute__((objc_subclassing_restricted))
 /**
  add responseHandler to MTURLProtocol.responseHandlers
 
- - Note: Only support adding one instance of the specific MTResponseHandler subclass.
+ - Note: Only support adding one instance of the specific MTResponseHandler protocol.
  */
 + (void)addResponseHandler:(Class<MTResponseHandler>)handler;
 + (void)removeResponseHandler:(Class<MTResponseHandler>)handler;
@@ -53,7 +58,7 @@ __attribute__((objc_subclassing_restricted))
 /**
  add taskHandler to MTURLProtocol.taskHandlers
 
- - Note: Only support adding one instance of the specific MTTaskHandler subclass.
+ - Note: Only support adding one instance of the specific MTTaskHandler protocol.
  */
 + (void)addTaskHandler:(Class<MTTaskHandler>)handler;
 + (void)removeTaskHandler:(Class<MTTaskHandler>)handler;

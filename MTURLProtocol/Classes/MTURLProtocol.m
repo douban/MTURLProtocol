@@ -141,7 +141,9 @@ static NSArray<Class<MTTaskHandler>> *_taskHandlers;
     self.dataTask = nil;
   }
 
-  [self.responseHandler stopLoading];
+  if ([self.responseHandler respondsToSelector:@selector(stopLoading)]) {
+    [self.responseHandler stopLoading];
+  }
 }
 
 #pragma mark - Public Methods
