@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  MTURLProtocol: d0861735db3dc10ff7c2c0dee195fff9fa0b584c
+  MTURLProtocol: b5a98e98d3bb4dbbb614cbbdfa5ee83d8fb2a2fb
 
 PODFILE CHECKSUM: b731e743673fddc15b421e23cb8974b2825bc206
 
