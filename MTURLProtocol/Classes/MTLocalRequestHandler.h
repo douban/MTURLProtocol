@@ -8,10 +8,9 @@
 #import "MTRequestHandler.h"
 
 /**
- Subclass this class if needed.
  Used when should reture response without network traverse. Response and response data may be returned from local.
  */
-@interface MTLocalRequestHandler : MTRequestHandler
+@protocol MTLocalRequestHandler <MTRequestHandler>
 
 - (nullable NSURLResponse *)responseForRequest:(NSURLRequest *)request;
 - (nullable NSData *)responseData;

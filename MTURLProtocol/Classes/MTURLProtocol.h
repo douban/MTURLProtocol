@@ -6,7 +6,7 @@
 //
 
 @import Foundation;
-@class MTRequestHandler, MTResponseHandler, MTTaskHandler;
+@protocol MTRequestHandler, MTResponseHandler, MTTaskHandler;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,48 +18,45 @@ __attribute__((objc_subclassing_restricted))
 
  - Note: Each requestHandler will be called if it can handler corresponding request.
  */
-@property (class, nonatomic, copy, nullable) NSArray<MTRequestHandler *> *requestHandlers;
+@property (class, nonatomic, copy, nullable) NSArray<Class<MTRequestHandler>> *requestHandlers;
 
 /**
  Responsible for dealing with response.
 
  - Note: Only one reponseHandler will be chose regarding to original request and final request.
  */
-@property (class, nonatomic, copy, nullable) NSArray<MTResponseHandler *> *responseHandlers;
+@property (class, nonatomic, copy, nullable) NSArray<Class<MTResponseHandler>> *responseHandlers;
 
 /**
  Responseble for decorating NSURLSessionTask instance used by MTURLProtocol instance to send request.
 
  - Note: Only one taskHandler will be called regarding to task.
  */
-@property (class, nonatomic, copy, nullable) NSArray<MTTaskHandler *> *taskHandlers;
+@property (class, nonatomic, copy, nullable) NSArray<Class<MTTaskHandler>> *taskHandlers;
 
 /**
  add requestHandler to MTURLProtocol.requestHandlers
 
  - Note: Only support adding one instance of the specific MTRequestHandler subclass.
  */
-+ (void)addRequestHandler:(nullable MTRequestHandler *)handler;
-+ (void)removeRequestHandler:(nullable MTRequestHandler *)handler;
-+ (void)removeRequestHandlerByClass:(Class)class;
++ (void)addRequestHandler:(Class<MTRequestHandler>)handler;
++ (void)removeRequestHandler:(Class<MTResponseHandler>)handler;
 
 /**
  add responseHandler to MTURLProtocol.responseHandlers
 
  - Note: Only support adding one instance of the specific MTResponseHandler subclass.
  */
-+ (void)addResponseHandler:(nullable MTResponseHandler *)handler;
-+ (void)removeResponseHandler:(nullable MTResponseHandler *)handler;
-+ (void)removeResponseHandlerByClass:(Class)class;
++ (void)addResponseHandler:(Class<MTResponseHandler>)handler;
++ (void)removeResponseHandler:(Class<MTResponseHandler>)handler;
 
 /**
  add taskHandler to MTURLProtocol.taskHandlers
 
  - Note: Only support adding one instance of the specific MTTaskHandler subclass.
  */
-+ (void)addTaskHandler:(nullable MTTaskHandler *)handler;
-+ (void)removeTaskHandler:(nullable MTTaskHandler *)handler;
-+ (void)removeTaskHandlerByClass:(Class)class;
++ (void)addTaskHandler:(Class<MTTaskHandler>)handler;
++ (void)removeTaskHandler:(Class<MTTaskHandler>)handler;
 
 @end
 NS_ASSUME_NONNULL_END

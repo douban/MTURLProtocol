@@ -11,11 +11,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Subclass this class if needed.
  Used in MTURLProtocl instance's NSURLSessionTaskDelegate and NSURLSessionDataDelegate methods. Those delegate methods
  will be forward to valid responseHandler set to MTURLProtocol.
  */
-@interface MTResponseHandler : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@protocol MTResponseHandler <NSObject, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (nonatomic, weak) id<NSURLProtocolClient> client; // MTURLProtocol instance.client
 @property (nonatomic, weak) NSURLSessionTask *dataTask; //  MTURLProtocol instance.dataTask
