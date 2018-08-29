@@ -10,7 +10,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Used to decorate request. MTRequestHandler instance will be called in order of adding time.
+ Used to decorate request. MTRequestHandler protocol instance will be called in order of adding time.
  */
 @protocol MTRequestHandler <NSObject>
 

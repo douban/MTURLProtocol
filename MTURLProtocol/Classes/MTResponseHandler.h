@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 /**
- MTURLProcotl instance will call this method in its -stopLoading method. Do anything you need to finish loading process
+ MTURLProtocol instance will call this method in its -stopLoading method. Do anything you need to finish loading process
  regarding to your custom response dealing logic.
  */
 - (void)stopLoading;
