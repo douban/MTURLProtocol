@@ -15,10 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MTTaskHandler <NSObject>
 
 /**
- Check if can handle the task.
+ Check if it can handle the task.
 
- - Note: Only one handler will be chose to handle the task. You may exend this function to support multiple MTTaskHandler
- instances.
+ - Note: Only one handler will be chosen to handle the task. You may exend this function to support multiple MTTaskHandler
+ protocol instances.
  */
 - (BOOL)canHandleTask:(NSURLSessionTask *)task;
 - (NSURLSessionTask *)decoratedTaskForTask:(NSURLSessionTask *)task;
