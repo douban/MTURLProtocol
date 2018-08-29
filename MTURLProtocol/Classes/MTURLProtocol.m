@@ -123,7 +123,7 @@ static NSArray<Class<MTTaskHandler>> *_taskHandlers;
                                                                     delegate:self
                                                                        modes:self.modes];
 
-    // Check if need decorate dataTask
+    // Check if it needs decorate dataTask
     id<MTTaskHandler> handler = [self _mt_taskHandlerForTask:dataTask];
     if (handler) {
       dataTask = [handler decoratedTaskForTask:dataTask];

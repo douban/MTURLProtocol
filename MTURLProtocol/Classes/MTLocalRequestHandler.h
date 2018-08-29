@@ -8,7 +8,7 @@
 #import "MTRequestHandler.h"
 
 /**
- Used when should reture response without network traverse. Response and response data may be returned from local.
+ Used when it should return response without sending request to server. Usually, response and related data may be returned from local.
  */
 @protocol MTLocalRequestHandler <MTRequestHandler>
 
