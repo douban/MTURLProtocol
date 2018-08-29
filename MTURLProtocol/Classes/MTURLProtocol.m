@@ -23,8 +23,8 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 @property (nonatomic, copy) NSArray *modes;
 @property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
 @property (nonatomic, readonly, nullable) MTResponseHandler *responseHandler;
-@property (nonatomic, copy) NSURLRequest *originalRequest;
-@property (nonatomic, copy) NSURLRequest *finalRequest;
+@property (nonatomic, copy) NSURLRequest *originalRequest;  // The request before decorated.
+@property (nonatomic, copy) NSURLRequest *finalRequest; // The request before sent.
 
 @end
 
@@ -48,7 +48,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 {
   NSLog(@"MTURLProtocol canInitWithRequest = %@", request.URL.absoluteString);
 
-  // If any handler of self.requestHandlers can init, it should return YES.
+  // The request will be intercepted if any handler can init with it.
   for (id handler in self.requestHandlers) {
     if ([handler canInitWithRequest:request]) {
       return YES;
@@ -78,9 +78,11 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   }
   self.modes = modes;
 
-  // Decorate request and check if is local or remote request.
+  // Decorate request. If is a local request, will assign a localRequestHandler.
   NSURLRequest *newRequest = [self _mt_decoratedRequestOfRequest:self.request];
   self.finalRequest = newRequest;
+
+  // Check is local or remote request
   if (_localRequestHandler) {
     NSLog(@"MTURLProtocol startLoading local request = %@", newRequest.URL.absoluteString);
 
@@ -97,6 +99,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
                                                                     delegate:self
                                                                        modes:self.modes];
 
+    // Check if need decorate dataTask
     MTTaskHandler *handler = [self _mt_taskHandlerForTask:dataTask];
     if (handler) {
       dataTask = [handler decoratedTaskForTask:dataTask];
@@ -196,6 +199,9 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   _taskHandlers = [taskHandlers copy];
 }
 
+/**
+ Only one reponseHandler will be chose regarding to original request and final request.
+ */
 - (MTResponseHandler *)responseHandler
 {
   for (MTResponseHandler *handler in [self.class responseHandlers]) {
@@ -218,6 +224,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
     if ([handler canHandleRequest:newRequest originalRequest:request]) {
       newRequest = [handler decoratedRequestOfRequest:newRequest originalRequest:request];
 
+      // Return instantly if is a local request
       if ([handler isKindOfClass:MTLocalRequestHandler.class]) {
         self.localRequestHandler = (MTLocalRequestHandler *)handler;
         return newRequest;

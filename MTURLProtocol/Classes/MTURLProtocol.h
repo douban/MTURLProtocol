@@ -16,21 +16,21 @@ __attribute__((objc_subclassing_restricted))
 /**
  Ordered array, responsible for decorating request.
 
- - Note: Each requestHandler will be called if can handler corresponding request.
+ - Note: Each requestHandler will be called if it can handler corresponding request.
  */
 @property (class, nonatomic, copy, nullable) NSArray<MTRequestHandler *> *requestHandlers;
 
 /**
  Responsible for dealing with response.
 
- - Note: Only one reponseHandler will be called regarding to originalRequest and decorated request.
+ - Note: Only one reponseHandler will be chose regarding to original request and final request.
  */
 @property (class, nonatomic, copy, nullable) NSArray<MTResponseHandler *> *responseHandlers;
 
 /**
  Responseble for decorating NSURLSessionTask instance used by MTURLProtocol instance to send request.
 
- - Note: Only one ** taskHandler will be called regarding to task.
+ - Note: Only one taskHandler will be called regarding to task.
  */
 @property (class, nonatomic, copy, nullable) NSArray<MTTaskHandler *> *taskHandlers;
 

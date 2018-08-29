@@ -23,7 +23,7 @@ TODO: Add long description of the pod here.
 
   s.homepage         = 'https://github.intra.douban.com/iOS/MTURLProtocol.git'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'huangduyu' => 'huangduyu@douban.com' }
+  s.author           = { 'huangduyu' => 'duyu1010@gmail.com' }
   s.source           = { :git => 'https://github.intra.douban.com/iOS/MTURLProtocol', :tag => s.version.to_s }
 
   s.ios.deployment_target = '8.0'
