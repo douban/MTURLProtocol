@@ -10,10 +10,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Subclass this class if needed.
  Used to decorate MTURLProtocol instance's dataTask(NSURLSessionTask) before sending decoated request.
  */
-@interface MTTaskHandler : NSObject
+@protocol MTTaskHandler <NSObject>
 
 /**
  Check if can handle the task.

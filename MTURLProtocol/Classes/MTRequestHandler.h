@@ -10,15 +10,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Subclass this class if needed.
  Used to decorate request. MTRequestHandler instance will be called in order of adding time.
  */
-@interface MTRequestHandler : NSObject
+@protocol MTRequestHandler <NSObject>
 
 /**
  Used in NSURLProtocol +canInitWithRequest: method.
  */
-- (BOOL)canInitWithRequest:(NSURLRequest *)request;
++ (BOOL)canInitWithRequest:(NSURLRequest *)request;
 
 /**
  Used in decorating process.

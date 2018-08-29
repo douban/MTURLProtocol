@@ -13,18 +13,22 @@
 #import "MTLocalRequestHandler.h"
 #import "MTTaskHandler.h"
 
-static NSArray<MTRequestHandler *> *_requestHandlers;
-static NSArray<MTResponseHandler *> *_responseHandlers;
-static NSArray<MTTaskHandler *> *_taskHandlers;
+static NSArray<Class<MTRequestHandler>> *_requestHandlers;
+static NSArray<Class<MTResponseHandler>> *_responseHandlers;
+static NSArray<Class<MTTaskHandler>> *_taskHandlers;
 
 @interface MTURLProtocol () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (nonatomic, strong) NSURLSessionTask *dataTask;
 @property (nonatomic, copy) NSArray *modes;
-@property (nonatomic, strong) MTLocalRequestHandler *localRequestHandler;
-@property (nonatomic, readonly, nullable) MTResponseHandler *responseHandler;
 @property (nonatomic, copy) NSURLRequest *originalRequest;  // The request before decorated.
 @property (nonatomic, copy) NSURLRequest *finalRequest; // The request before sent.
+
+@property (nonatomic, copy) NSArray<id<MTRequestHandler>> *requestHandlers;
+@property (nonatomic, copy) NSArray<id<MTResponseHandler>> *responseHandlers;
+@property (nonatomic, copy) NSArray<id<MTTaskHandler>> *taskHandlers;
+@property (nonatomic, strong) id<MTLocalRequestHandler> localRequestHandler;
+@property (nonatomic, readonly, nullable) id<MTResponseHandler> responseHandler;
 
 @end
 
@@ -49,8 +53,8 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   NSLog(@"MTURLProtocol canInitWithRequest = %@", request.URL.absoluteString);
 
   // The request will be intercepted if any handler can init with it.
-  for (id handler in self.requestHandlers) {
-    if ([handler canInitWithRequest:request]) {
+  for (Class<MTRequestHandler> hd in self.requestHandlers) {
+    if ([hd canInitWithRequest:request]) {
       return YES;
     }
   }
@@ -60,6 +64,26 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
   return request;
+}
+
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                 cachedResponse:(NSCachedURLResponse *)cachedResponse
+                         client:(id<NSURLProtocolClient>)client
+{
+  if (self = [super initWithRequest:request cachedResponse:cachedResponse client:client]) {
+    [self _mt_initHandlers];
+  }
+  return self;
+}
+
+- (instancetype)initWithTask:(NSURLSessionTask *)task
+              cachedResponse:(NSCachedURLResponse *)cachedResponse
+                      client:(id<NSURLProtocolClient>)client
+{
+  if (self = [super initWithTask:task cachedResponse:cachedResponse client:client]) {
+    [self _mt_initHandlers];
+  }
+  return self;
 }
 
 - (void)startLoading
@@ -100,7 +124,7 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
                                                                        modes:self.modes];
 
     // Check if need decorate dataTask
-    MTTaskHandler *handler = [self _mt_taskHandlerForTask:dataTask];
+    id<MTTaskHandler> handler = [self _mt_taskHandlerForTask:dataTask];
     if (handler) {
       dataTask = [handler decoratedTaskForTask:dataTask];
     }
@@ -117,94 +141,81 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
     self.dataTask = nil;
   }
 
-  [self.responseHandler stopLoading];
+  if ([self.responseHandler respondsToSelector:@selector(stopLoading)]) {
+    [self.responseHandler stopLoading];
+  }
 }
 
 #pragma mark - Public Methods
 
-+ (void)addRequestHandler:(MTRequestHandler *)handler
++ (void)addRequestHandler:(Class<MTRequestHandler>)handler
 {
   [self setRequestHandlers:[self _mt_addHandler:handler toArray:[self requestHandlers]]];
 }
 
-+ (void)removeRequestHandler:(MTRequestHandler *)handler
++ (void)removeRequestHandler:(Class<MTResponseHandler>)handler
 {
   [self setRequestHandlers:[self _mt_removeHandler:handler ofArray:[self requestHandlers]]];
 }
 
-+ (void)removeRequestHandlerByClass:(Class)class
-{
-  [self setRequestHandlers:[self _mt_removeHandlerByClass:class ofArray:[self requestHandlers]]];
-}
-
-+ (void)addResponseHandler:(MTResponseHandler *)handler
++ (void)addResponseHandler:(Class<MTResponseHandler>)handler
 {
   [self setResponseHandlers:[self _mt_addHandler:handler toArray:[self responseHandlers]]];
 }
 
-+ (void)removeResponseHandler:(MTResponseHandler *)handler
++ (void)removeResponseHandler:(Class<MTResponseHandler>)handler
 {
   [self setResponseHandlers:[self _mt_removeHandler:handler ofArray:[self responseHandlers]]];
 }
 
-+ (void)removeResponseHandlerByClass:(Class)class
-{
-  [self setResponseHandlers:[self _mt_removeHandlerByClass:class ofArray:[self responseHandlers]]];
-}
-
-+ (void)addTaskHandler:(MTTaskHandler *)handler
++ (void)addTaskHandler:(Class<MTTaskHandler>)handler
 {
   [self setTaskHandlers:[self _mt_addHandler:handler toArray:[self taskHandlers]]];
 }
 
-+ (void)removeTaskHandler:(MTTaskHandler *)handler
++ (void)removeTaskHandler:(Class<MTTaskHandler>)handler
 {
   [self setTaskHandlers:[self _mt_removeHandler:handler ofArray:[self taskHandlers]]];
 }
 
-+ (void)removeTaskHandlerByClass:(Class)class
-{
-  [self setTaskHandlers:[self _mt_removeHandlerByClass:class ofArray:[self taskHandlers]]];
-}
-
 #pragma mark - Properties
 
-+ (NSArray<MTRequestHandler *> *)requestHandlers
++ (NSArray<Class<MTRequestHandler>> *)requestHandlers
 {
   return _requestHandlers;
 }
 
-+ (void)setRequestHandlers:(NSArray<MTRequestHandler *> *)requestHandlers
++ (void)setRequestHandlers:(NSArray<Class<MTRequestHandler>> *)requestHandlers
 {
-  _requestHandlers = [requestHandlers copy];
+  _requestHandlers = requestHandlers.copy;
 }
 
-+ (NSArray<MTResponseHandler *> *)responseHandlers
++ (NSArray<Class<MTResponseHandler>> *)responseHandlers
 {
   return _responseHandlers;
 }
 
-+ (void)setResponseHandlers:(NSArray<MTResponseHandler *> *)responseHandlers
++ (void)setResponseHandlers:(NSArray<Class<MTResponseHandler>> *)responseHandlers
 {
-  _responseHandlers = [responseHandlers copy];
+  _responseHandlers = responseHandlers.copy;
 }
 
-+ (NSArray<MTTaskHandler *> *)taskHandlers
++ (NSArray<Class<MTTaskHandler>> *)taskHandlers
 {
   return _taskHandlers;
 }
 
-+ (void)setTaskHandlers:(NSArray<MTTaskHandler *> *)taskHandlers
++ (void)setTaskHandlers:(NSArray<Class<MTTaskHandler>> *)taskHandlers
 {
-  _taskHandlers = [taskHandlers copy];
+  _taskHandlers = taskHandlers.copy;
 }
 
 /**
  Only one reponseHandler will be chose regarding to original request and final request.
  */
-- (MTResponseHandler *)responseHandler
+- (id<MTResponseHandler>)responseHandler
 {
-  for (MTResponseHandler *handler in [self.class responseHandlers]) {
+  for (id<MTResponseHandler> handler in self.responseHandlers) {
     if ([handler shouldHandleRequest:_finalRequest originalRequest:_originalRequest]) {
       handler.client = self.client;
       handler.protocol = self;
@@ -217,16 +228,37 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
 
 #pragma mark - Helpers
 
+- (void)_mt_initHandlers
+{
+  NSMutableArray *requestHandlers = [NSMutableArray array];
+  for (Class class in [self.class requestHandlers]) {
+    [requestHandlers addObject:[class new]];
+  }
+  _requestHandlers = requestHandlers.copy;
+
+  NSMutableArray *responseHandler = [NSMutableArray array];
+  for (Class class in [self.class responseHandlers]) {
+    [responseHandler addObject:[class new]];
+  }
+  _responseHandlers = responseHandler.copy;
+
+  NSMutableArray *taskHandlers = [NSMutableArray array];
+  for (Class class in [self.class taskHandlers]) {
+    [taskHandlers addObject:[class new]];
+  }
+  _taskHandlers = taskHandlers.copy;
+}
+
 - (NSURLRequest *)_mt_decoratedRequestOfRequest:(NSURLRequest *)request
 {
   NSURLRequest *newRequest = request;
-  for (MTRequestHandler *handler in self.class.requestHandlers) {
+  for (id<MTRequestHandler> handler in self.requestHandlers) {
     if ([handler canHandleRequest:newRequest originalRequest:request]) {
       newRequest = [handler decoratedRequestOfRequest:newRequest originalRequest:request];
 
       // Return instantly if is a local request
-      if ([handler isKindOfClass:MTLocalRequestHandler.class]) {
-        self.localRequestHandler = (MTLocalRequestHandler *)handler;
+      if ([handler conformsToProtocol:@protocol(MTLocalRequestHandler)]) {
+        self.localRequestHandler = (id<MTLocalRequestHandler>)handler;
         return newRequest;
       }
     }
@@ -234,9 +266,9 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   return newRequest;
 }
 
-- (nullable MTTaskHandler *)_mt_taskHandlerForTask:(NSURLSessionTask *)task
+- (nullable id<MTTaskHandler>)_mt_taskHandlerForTask:(NSURLSessionTask *)task
 {
-  for (MTTaskHandler *handler in [self.class taskHandlers]) {
+  for (id<MTTaskHandler> handler in self.taskHandlers) {
     if ([handler canHandleTask:task]) {
       return handler;
     }
@@ -245,15 +277,11 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   return nil;
 }
 
-+ (NSArray *)_mt_addHandler:(NSObject *)handler toArray:(NSArray *)array
++ (NSArray *)_mt_addHandler:(Class)handler toArray:(NSArray *)array
 {
-  if (!handler) {
-    return array;
-  }
-
   BOOL added = NO;
-  for (NSObject *hd in array) {
-    if ([hd isKindOfClass:handler.class]) { // Only add one instance of the specific class
+  for (Class hd in array) {
+    if (hd == handler) {
       added = YES;
       break;
     }
@@ -271,35 +299,11 @@ static NSArray<MTTaskHandler *> *_taskHandlers;
   return mutArray;
 }
 
-+ (NSArray *)_mt_removeHandler:(NSObject *)handler ofArray:(NSArray *)array
++ (NSArray *)_mt_removeHandler:(Class)handler ofArray:(NSArray *)array
 {
-  if (!handler) {
-    return array;
-  }
-
   if ([array containsObject:handler]) {
     NSMutableArray *mutArray = array.mutableCopy;
     [mutArray removeObject:handler];
-    return mutArray;
-  }
-  else {
-    return array;
-  }
-}
-
-+ (NSArray *)_mt_removeHandlerByClass:(Class)class ofArray:(NSArray *)array
-{
-  NSObject *removingHandler;
-  for (NSObject *handler in array) {
-    if ([handler isKindOfClass:class]) {
-      removingHandler = handler;
-      break;
-    }
-  }
-
-  if (removingHandler) {
-    NSMutableArray *mutArray = array.mutableCopy;
-    [mutArray removeObject:removingHandler];
     return mutArray;
   }
   else {
