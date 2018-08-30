@@ -12,53 +12,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Every single MTURLProtocol instance uses class properties of `requestHandlers`, `responseHandlers` and `taskHandlers`
- to check if it needs genertate corresponding array of instances of Class<MTXXXHandler> when `-initWithRequest:cachedResponse:client:`
+ to check if it needs genertate corresponding instances of Class<MTXXXHandler> when `-initWithRequest:cachedResponse:client:`
  or `-initWithTask:cachedResponse:client:` method is called.
  */
 __attribute__((objc_subclassing_restricted))
 @interface MTURLProtocol : NSURLProtocol
 
 /**
- Ordered array, responsible for decorating request.
-
- - Note: Each requestHandler will be called if it can handler corresponding request.
+ Ordered array, used to decorate request.
+ MTURLProtocol instance uses this property to generate corresponding instances conform to MTRequestHandler protocol.
  */
 @property (class, nonatomic, copy, nullable) NSArray<Class<MTRequestHandler>> *requestHandlers;
 
 /**
- Responsible for dealing with response.
+ Used to decorate response.
+ MTURLProtocol instance uses this property to generate corresponding instances conform to MTResponseHandler protocol.
 
- - Note: Only one reponseHandler will be chose regarding to original request and final request.
+ - Note: Only one MTReponseHandler protocol instance will be chosen regarding to original request and final request.
  */
 @property (class, nonatomic, copy, nullable) NSArray<Class<MTResponseHandler>> *responseHandlers;
 
 /**
- Responseble for decorating NSURLSessionTask instance used by MTURLProtocol instance to send request.
+ Used to decorate NSURLSessionTask instance in MTURLProtocol instance.
+ MTURLProtocol instance uses this property to generate corresponding instances conform to MTTaskHandler protocol.
 
- - Note: Only one taskHandler will be called regarding to task.
+ - Note: Only one MTTaskHandker protocol instance will be chosen regarding to task.
  */
 @property (class, nonatomic, copy, nullable) NSArray<Class<MTTaskHandler>> *taskHandlers;
 
 /**
- add requestHandler to MTURLProtocol.requestHandlers
-
- - Note: Only support adding one instance of the specific MTRequestHandler protocol.
+ Add classes conforming to MTRequestHandler protocol to MTURLProtocol.requestHandlers
  */
 + (void)addRequestHandler:(Class<MTRequestHandler>)handler;
 + (void)removeRequestHandler:(Class<MTResponseHandler>)handler;
 
 /**
- add responseHandler to MTURLProtocol.responseHandlers
-
- - Note: Only support adding one instance of the specific MTResponseHandler protocol.
+ Add classes conforming to MTResponseHandler protocol to MTURLProtocol.responseHandlers
  */
 + (void)addResponseHandler:(Class<MTResponseHandler>)handler;
 + (void)removeResponseHandler:(Class<MTResponseHandler>)handler;
 
 /**
- add taskHandler to MTURLProtocol.taskHandlers
-
- - Note: Only support adding one instance of the specific MTTaskHandler protocol.
+ Add classes conforming to MTTaskHandler protocol to MTURLProtocol.taskHandlers
  */
 + (void)addTaskHandler:(Class<MTTaskHandler>)handler;
 + (void)removeTaskHandler:(Class<MTTaskHandler>)handler;
