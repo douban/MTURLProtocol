@@ -10,7 +10,7 @@ MTURLProtocol is a subclass of NSURLProtocl and itself is **subclass restricted*
 
 If you have implemented multiple NSURLProtocol subclass and find it inconvenient to maintain those code, it's time to consider migrating to use MTURLProtocol to implement the same function.
 
-MTURLProtocol is protocol oriented. The main idea is providing 3 protocol: `MTRequestHandler`, `MTResponseHandler`, `MTTaskHandler` for decorating request, dataTask and response.
+MTURLProtocol is protocol oriented. The main idea is providing 3 protocols: `MTRequestHandler`, `MTTaskHandler`, `MTResponseHandler` for decorating request, dataTask and response.
 
 ## 2. Structure
 <img width="571" alt="ecc48ed2-a92c-11e8-9084-9edb982ab8c6" src="https://user-images.githubusercontent.com/4435768/44769961-f8a8f080-ab98-11e8-82eb-35ef2a1a5209.png">
@@ -23,9 +23,9 @@ A request will be handled by your (mutiple) MTRequestHandler protocol instance(s
 You can implement MTLocalRequestHandler protocol to return response and response data instantly. 
 
 ### 2.2 Handle Response
-MTURLProtocol instance will choose **only one** MTResponseHandler protocol instance to handle the response regarding the `original request`: the request before decorated and the `final request`: the request before sent.
+MTURLProtocol instance will choose **only one** MTResponseHandler protocol instance to handle the response regarding to the `original request`: the request before decorated and the `final request`: the request before sent.
 
-Previously, you may have multiple NSURLProtocol instance to handle different response. If more than 2 NSURLProtocol instances was handling one request, you need merge the logic into one MTResponseHandler protocol instance when migrating.
+Previously, you may have multiple NSURLProtocol instances to handle different response. If more than 2 NSURLProtocol instances was handling one request, you may need merge the logic into one MTResponseHandler protocol instance when migrating.
 
 ## 3. Example
 ### 3.1 Implement MTRequestHander, MTResponseHandler, MTTaskHandler protocol if needed.
