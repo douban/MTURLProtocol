@@ -9,8 +9,12 @@
 @import MTURLProtocol;
 
 #import "MTViewController.h"
+#import "MTTestRequestHandler.h"
+#import "MTTestLocalRequestHandler.h"
+#import "MTTestResponseHandler.h"
 
-static NSString *DNS = @"DNS";
+static NSString *RemoteRequest = @"Remote Request";
+static NSString *LocalRequest = @"Local Request";
 
 @interface MTViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -26,7 +30,20 @@ static NSString *DNS = @"DNS";
   if (self = [super init]) {
     self.title = @"MTURLProtocol Demo";
 
-    _rows = @[DNS];
+    // Request handler
+    [MTURLProtocol addRequestHandler:MTTestRequestHandler.class];
+    [MTURLProtocol addRequestHandler:MTTestLocalRequestHandler.class];
+
+    // Response handler
+    // Note: you can also delete the line below to use default response handling logic in MTURLProtocl.
+    // MTTestResponseHandler dose nothing more than MTURLProtocol.
+    [MTURLProtocol addResponseHandler:MTTestResponseHandler.class];
+
+    // Task handler
+    // Add task handler if needed.
+    // ...
+
+    _rows = @[RemoteRequest, LocalRequest];
   }
   return self;
 }
@@ -75,16 +92,48 @@ static NSString *DNS = @"DNS";
 {
   [tableView deselectRowAtIndexPath:indexPath animated:NO];
 
-  if ([_rows[indexPath.row] isEqualToString:DNS]) {
-    [self _mt_testDNS];
+  if ([_rows[indexPath.row] isEqualToString:RemoteRequest]) {
+    [self _mt_testRemoteRequest];
+  }
+  else if ([_rows[indexPath.row] isEqualToString:LocalRequest]) {
+    [self _mt_testLocalRequest];
   }
 }
 
 #pragma mark - Test Logic
 
-- (void)_mt_testDNS
+- (void)_mt_testRemoteRequest
 {
-  
+  // Will be decorated by `MTTestRequestHandler`
+  [self _mt_sentRequestWithURL:[NSURL URLWithString:@"https://jsonplaceholder.typicode.com/"]];
+}
+
+- (void)_mt_testLocalRequest
+{
+  // Will be decorated by `MTTestLocalRequestHandler`
+  [self _mt_sentRequestWithURL:[NSURL URLWithString:@"https://mtdemo.com/local-api"]];
+}
+
+- (void)_mt_sentRequestWithURL:(NSURL *)url
+{
+  NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+  [configuration mt_registerProtocolClass:MTURLProtocol.class];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+
+  NSURLSessionDataTask *task = [session dataTaskWithURL:url
+                                      completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                        if (!error) {
+                                          NSLog(@"success");
+                                          NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                          UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reponse"
+                                                                                                         message:json
+                                                                                                  preferredStyle:UIAlertControllerStyleAlert];
+                                          UIAlertAction *action = [UIAlertAction actionWithTitle:@"Confirm" style:UIAlertActionStyleDefault handler:nil];
+                                          [alert addAction:action];
+                                          [self presentViewController:alert animated:YES completion:nil];
+                                        }
+                                      }];
+  [task resume];
 }
 
 @end
