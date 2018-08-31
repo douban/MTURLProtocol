@@ -28,63 +28,11 @@ MTURLProtocol instance will choose **only one** MTResponseHandler protocol insta
 Previously, you may have multiple NSURLProtocol instances to handle different response. If more than 2 NSURLProtocol instances was handling one request, you may need merge the logic into one MTResponseHandler protocol instance when migrating.
 
 ## 3. Example
-### 3.1 Implement MTRequestHander, MTResponseHandler, MTTaskHandler protocol if needed.
-```
-// DNSRequestHandler.h
+See demo in `MTURLProtocl-Example` project.
 
-@import MTURLProtocol;
-
-@interface DNSRequestHandler : NSObject <MTRequestHandler>
-
-@end
-
-```
-
-```
-// DNSRequestHandler.m
-
-@implementation DNSRequestHandler
-
-+ (BOOL)canInitWithRequest:(NSURLRequest *)request
-{
-  // Check if can init MTURLProtocol instance
-  // ...
-  
-  return canInit;
-}
-
-- (BOOL)canHandleRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
-{
-  // Check if it can handler request
-  // ...
-  
-  return canHandle;
-}
-
-- (NSURLRequest *)decoratedRequestOfRequest:(NSURLRequest *)request originalRequest:(NSURLRequest *)originalRequest
-{
-  // Decorate request if needed
-  // ...
-  
-  return decoratedRequest;
-}
-
-```
-
-### 3.2 Set handlers and register MTURLProtocol
-```
-  // Set handlers
-  [MTURLProtocol addRequestHandler:WebPRequestHandler.class];
-  [MTURLProtocol addRequestHandler:OAuthRequestHandler.class];
-    
-  or 
-  
-  MTURLProtocol.requestHandlers = @[AccountLocalRequestHandler.class, OAuthRequestHandler.class];
-  
-  // Register MTURLProtocol
-  [sessionConfiguration mt_registerProtocolClass:MTURLProtocol.class];
-  [NSURLProtocol registerClass:MTURLProtocol.class];
-```
+- `MTTestRequestHandler` + `MTTestResponseHandler`: decorating remote request and response
+-  `MTTestLocalRequestHandler`: decorating local request and return response instantly
+-  There is no example for `MTTaskHandler` but it is also easy like implementing handlers above.
 
 ## 4. Installation
 
