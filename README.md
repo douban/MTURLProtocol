@@ -48,6 +48,7 @@ pod 'MTURLProtocol'
 - [豆瓣App](https://www.douban.com/doubanapp/frodo?channel=top-nav&referer=https%3A%2F%2Fwww.douban.com%2F&wechat=0&os=Mac+OS+X)
 
 ## 6. Change Log
+- 0.1.2: Minor fix of Podfile source.
 - 0.1.1: Add demo.
 - 0.1.0: The first version.
 

@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'MTURLProtocol'
-  s.version          = '0.1.1'
+  s.version          = '0.1.2'
   s.summary          = 'Multiple NSURLProtocol alternative solution.'
   s.description      = <<-DESC
 MTURLProtocol is a subclass of NSURLProtocl and itself is subclass restricted. It is used to avoid implementing multiple NSURLProtocol subclasses in one application.

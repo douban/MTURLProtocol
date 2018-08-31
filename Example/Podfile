@@ -1,5 +1,4 @@
-source 'http://github.intra.douban.com/iOS/CocoaPodsSpecs.git'
-source 'http://github.intra.douban.com/mirror/Specs.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
 platform :ios, '8.0'
 use_frameworks!

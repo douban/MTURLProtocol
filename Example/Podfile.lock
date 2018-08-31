@@ -1,5 +1,5 @@
 PODS:
-  - MTURLProtocol (0.1.0)
+  - MTURLProtocol (0.1.1)
 
 DEPENDENCIES:
   - MTURLProtocol (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  MTURLProtocol: b5a98e98d3bb4dbbb614cbbdfa5ee83d8fb2a2fb
+  MTURLProtocol: eeadbacebb8208da639ae82f5abb82619b7a3d91
 
-PODFILE CHECKSUM: b731e743673fddc15b421e23cb8974b2825bc206
+PODFILE CHECKSUM: 31442725a50a9e3d6261b7b7ec710edfe5b7a551
 
 COCOAPODS: 1.5.2
