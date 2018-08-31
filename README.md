@@ -47,11 +47,16 @@ pod 'MTURLProtocol'
 - [rexxar-iOS](https://github.com/douban/rexxar-ios/tree/dev/Rexxar/Classes/Core)
 - [豆瓣App](https://www.douban.com/doubanapp/frodo?channel=top-nav&referer=https%3A%2F%2Fwww.douban.com%2F&wechat=0&os=Mac+OS+X)
 
-## 6. Author
+## 6. Change Log
+- 0.1.1: Add demo.
+- 0.1.0: The first version.
+
+
+## 7. Author
 
 duyu1010@gmail.com
 
 
-## 7. License
+## 8. License
 
 MTURLProtocol is available under the MIT license. See the LICENSE file for more info.
